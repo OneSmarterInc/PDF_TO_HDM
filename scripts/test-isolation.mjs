@@ -1,0 +1,15 @@
+import './qa-config.cjs';
+import 'dotenv/config';import fs from 'node:fs/promises';import assert from 'node:assert/strict';import {randomBytes} from 'node:crypto';
+const qa=JSON.parse(await fs.readFile('tmp/qa-account.json','utf8')),document=JSON.parse(await fs.readFile('tmp/persisted-document.json','utf8')),base=process.env.TEST_URL||'http://127.0.0.1:4318';
+const adminHeaders={Cookie:qa.adminCookie,Origin:base,'X-CSRF-Token':qa.csrf,'Content-Type':'application/json'};
+const username='qa_isolation_'+randomBytes(4).toString('hex'),input={username,full_name:'Isolation QA',email:'',role:'user',active:true};
+let r=await fetch(base+'/api/admin/users',{method:'POST',headers:adminHeaders,body:JSON.stringify(input)});assert.equal(r.status,201);const {user}=await r.json();
+r=await fetch(base+'/api/auth/login',{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:JSON.stringify({username,password:process.env.TEMPORARY_PASSWORD})});assert.equal(r.status,200);let data=await r.json(),cookie=r.headers.get('set-cookie').split(';')[0];const password=randomBytes(24).toString('base64url');
+r=await fetch(base+'/api/auth/password',{method:'POST',headers:{Cookie:cookie,Origin:base,'X-CSRF-Token':data.csrf},body:JSON.stringify({currentPassword:process.env.TEMPORARY_PASSWORD,newPassword:password,confirmPassword:password})});assert.equal(r.status,200);cookie=r.headers.get('set-cookie').split(';')[0];data=await r.json();const headers={Cookie:cookie,Origin:base,'X-CSRF-Token':data.csrf};
+for(const suffix of ['','/original.pdf','/page-1.png','/export.xlsx'])assert.equal((await fetch(base+'/api/documents/'+document.id+suffix,{headers})).status,404);
+for(const method of ['PATCH','DELETE'])assert.equal((await fetch(base+'/api/documents/'+document.id,{method,headers,body:method==='PATCH'?JSON.stringify({page:0,field:0,value:'forbidden'}):undefined})).status,404);
+for(const route of ['/api/admin/stats','/api/admin/users','/api/admin/audit'])assert.equal((await fetch(base+route,{headers})).status,403);
+const list=await(await fetch(base+'/api/documents',{headers})).json();assert.equal(list.total,0);
+assert.equal((await fetch(base+'/api/documents/'+document.id,{method:'PATCH',headers:adminHeaders,body:JSON.stringify({page:0,field:0,value:'stale',version:-1})})).status,409);
+assert.equal((await fetch(base+'/api/admin/users/'+user.id,{method:'PATCH',headers:adminHeaders,body:JSON.stringify({...input,active:false})})).status,200);
+console.log('PASS ownership: other users cannot read/edit/delete/export PDF assets or results; admin APIs denied; list scoped; stale edits rejected.');

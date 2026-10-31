@@ -1,0 +1,110 @@
+[
+  {
+    "name": "A",
+    "patient": "MORGAN AVERY",
+    "dob": "02 29 1988",
+    "insured": "MORGAN AVERY",
+    "id": "00123456789",
+    "address": "24 MAPLE STREET",
+    "city": "DENVER",
+    "state": "CO",
+    "zip": "802030012",
+    "tax": "012345678",
+    "account": "00001234",
+    "npi": "1234567893",
+    "paid": "50.00",
+    "total": "200.75",
+    "balance": "150.75",
+    "diagnoses": [
+      "250.00",
+      "401.9"
+    ],
+    "lines": [
+      [
+        "01 02 26",
+        "01 02 26",
+        "11",
+        "99213",
+        "1",
+        "125.50",
+        "1"
+      ],
+      [
+        "01 03 26",
+        "01 03 26",
+        "11",
+        "93000",
+        "2",
+        "75.25",
+        "1"
+      ]
+    ],
+    "checks": [
+      "Medicare",
+      "Male",
+      "Self",
+      "Employment Yes",
+      "Auto No",
+      "Other No",
+      "Insured Male",
+      "Other plan No",
+      "Lab No",
+      "EIN",
+      "Assignment Yes"
+    ]
+  },
+  {
+    "name": "B",
+    "patient": "PEREZ JORDAN",
+    "dob": "11 23 1974",
+    "insured": "PEREZ TAYLOR",
+    "id": "AB00998877",
+    "address": "803 OAK AVENUE",
+    "city": "AUSTIN",
+    "state": "TX",
+    "zip": "787010099",
+    "tax": "987654321",
+    "account": "0000042",
+    "npi": "1234567893",
+    "paid": "199.95",
+    "total": "199.95",
+    "balance": "0.00",
+    "diagnoses": [
+      "V70.0",
+      "401.9"
+    ],
+    "lines": [
+      [
+        "03 11 26",
+        "03 11 26",
+        "22",
+        "99214",
+        "1",
+        "150.00",
+        "2"
+      ],
+      [
+        "03 12 26",
+        "03 12 26",
+        "22",
+        "93000",
+        "2",
+        "49.95",
+        "1"
+      ]
+    ],
+    "checks": [
+      "Group health plan",
+      "Female",
+      "Spouse",
+      "Employment No",
+      "Auto Yes",
+      "Other Yes",
+      "Insured Female",
+      "Other plan Yes",
+      "Lab Yes",
+      "SSN",
+      "Assignment No"
+    ]
+  }
+]

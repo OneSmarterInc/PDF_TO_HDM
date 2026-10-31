@@ -1,0 +1,7 @@
+import './qa-config.cjs';import fs from 'node:fs/promises';import assert from 'node:assert/strict';import {execFile} from 'node:child_process';import {promisify} from 'node:util';
+const base='http://127.0.0.1:4318',qa=JSON.parse(await fs.readFile('tmp/qa-account.json','utf8')),headers={Cookie:qa.adminCookie,Origin:base,'X-CSRF-Token':qa.csrf};
+const r=await fetch(base+'/api/documents',{method:'POST',headers:{...headers,'X-File-Name':'recovery.pdf'},body:await fs.readFile('test/fixtures/legacy-blank.pdf')});assert.equal(r.status,202);const {id}=await r.json();
+let doc;do{await new Promise(r=>setTimeout(r,200));doc=await(await fetch(base+'/api/documents/'+id,{headers})).json();}while(doc.status==='queued');assert.equal(doc.status,'processing');
+await promisify(execFile)('powershell.exe',['-ExecutionPolicy','Bypass','-File','scripts/restart-test.ps1'],{windowsHide:true,timeout:30000});
+const deadline=Date.now()+180000;do{await new Promise(r=>setTimeout(r,1000));doc=await(await fetch(base+'/api/documents/'+id,{headers})).json();assert.notEqual(doc.status,'error',doc.message);assert.ok(Date.now()<deadline);}while(doc.status!=='complete');assert.equal(doc.id,id);assert.equal(doc.pages.length,1);assert.ok(doc.pages[0].fields.every(f=>f.kind==='checkbox'?f.value==='None selected':!f.value));
+console.log('PASS interrupted job recovery: same document ID and original PDF resumed automatically after process-tree restart; blank control remained blank.');

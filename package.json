@@ -1,0 +1,53 @@
+{
+  "name": "claims-pdf-reader",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test test/*.test.mjs",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json",
+    "build": "node scripts/build.mjs",
+    "db:migrate": "node scripts/migrate.mjs",
+    "admin:init": "node scripts/bootstrap-admin.mjs",
+    "test:database": "node scripts/test-database.mjs",
+    "test:auth": "node scripts/test-auth.mjs",
+    "test:users": "node scripts/test-users.mjs",
+    "test:audit": "node scripts/test-audit.mjs",
+    "test:ui": "node scripts/test-ui.cjs",
+    "test:reader": "node scripts/test-reader-browser.cjs",
+    "demo:check": "node scripts/demo-check.mjs"
+  },
+  "dependencies": {
+    "argon2": "^0.45.1",
+    "dotenv": "^18.0.9",
+    "exceljs": "^4.4.0",
+    "pg": "^8.23.1",
+    "tesseract.js": "6.0.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.6",
+    "@types/pg": "^8.23.1",
+    "eslint": "^10.14.0",
+    "globals": "^17.13.0",
+    "playwright": "^1.64.1",
+    "typescript": "^7.0.2",
+    "lucide-static": "^1.65.0"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "overrides": {
+    "exceljs": {
+      "uuid": "11.1.1"
+    },
+    "readdir-glob": {
+      "minimatch": "11.0.1"
+    },
+    "eslint": {
+      "minimatch": "11.0.1"
+    }
+  }
+}

@@ -1,0 +1,27 @@
+# Deny by default: never send local credentials, PDFs, databases or QA outputs to the daemon.
+**
+!Dockerfile
+!.dockerignore
+!package.json
+!package-lock.json
+!requirements.txt
+!requirements.lock.txt
+!.env.example
+!.env.migration.example
+!*.mjs
+!*.py
+!public/
+!public/**
+!db/
+!db/**
+!excel/
+!excel/**
+!docs/
+!docs/**
+!scripts/
+!scripts/build.mjs
+!scripts/migrate.mjs
+!scripts/bootstrap-admin.mjs
+!models/
+!models/eng.traineddata
+**/__pycache__/**

@@ -1,0 +1,4 @@
+import {setupPasswordVisibility} from "./password-visibility.js";
+setupPasswordVisibility();
+const form=document.querySelector('form'),button=document.querySelector('#submit'),message=document.querySelector('#message');
+form.onsubmit=async e=>{e.preventDefault();if(button.disabled)return;button.disabled=true;button.textContent='Signing in…';message.textContent='';try{const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:form.username.value,password:form.password.value})});const d=await r.json();if(!r.ok)throw Error(d.error);sessionStorage.removeItem('documentId');location.assign(d.user.must_change_password?'/change-password':'/portal');}catch(error){message.textContent=error.message;button.disabled=false;button.textContent='Sign in';}};

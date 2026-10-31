@@ -1,0 +1,4 @@
+{
+ "compilerOptions":{"allowJs":true,"checkJs":true,"noEmit":true,"target":"ES2022","module":"NodeNext","moduleResolution":"NodeNext","skipLibCheck":true,"strict":false,"types":["node"]},
+ "include":["db/index.mjs","security.mjs","admin.mjs","audit-history.mjs","document-store.mjs"]
+}
