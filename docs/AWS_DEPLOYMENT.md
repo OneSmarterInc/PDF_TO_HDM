@@ -1,6 +1,6 @@
 # PDF Extractor HDM — AWS deployment runbook
 
-**Current release gate: BLOCKED for public production.** The refreshed image passes functional qualification but retains OS high/critical findings. Read AWS_READINESS_REPORT.md before using this runbook; these are staging/preparation instructions until the image findings are resolved or formally assessed.
+**Security gate:** the final remediated image has zero reported OS, Node.js or Python vulnerabilities, with no suppressions. See [SECURITY_REMEDIATION.md](SECURITY_REMEDIATION.md) for qualification evidence. Repeat release checks on your image and complete the account-specific AWS staging checklist below before public deployment.
 
 ## Architecture and release boundary
 
@@ -29,12 +29,14 @@ npm test
 npm run lint
 npm run typecheck
 npm run build
-docker build --platform linux/amd64 -t pdf-extracter-hdm:release .
-$env:TEST_IMAGE="pdf-extracter-hdm:release"
+docker build --platform linux/amd64 -t pdf-extractor-hdm:release .
+$env:TEST_IMAGE="pdf-extractor-hdm:release"
+node scripts/scan-image.mjs pdf-extractor-hdm:release
+$env:TEST_FULL_OCR='1'
 node scripts/test-container.cjs
 ```
 
-The container test defaults to the `pdf-extracter-hdm:aws-candidate` image; set TEST_IMAGE=pdf-extracter-hdm:release to test your release tag. It creates only uniquely named disposable Docker resources, generates temporary test secrets, and exercises PostgreSQL TLS, migrations, login, OCR, Excel and restart recovery. It publishes localhost port 4320, so keep that port free. Dependencies and the Tesseract model are packaged; OCR does not need a runtime model download.
+The container test defaults to the `pdf-extracter-hdm:aws-candidate` image; set TEST_IMAGE=pdf-extractor-hdm:release to test your release tag. It creates only uniquely named disposable Docker resources, generates temporary test secrets, and exercises PostgreSQL TLS, migrations, login, OCR, Excel and restart recovery. It publishes localhost port 4320, so keep that port free. Dependencies and the Tesseract model are packaged; OCR does not need a runtime model download. The runtime uses digest-pinned Wolfi with Node 24 and Python 3.12; installation-only pip tooling is removed after dependency validation. Full OCR mode adds digital/scanned/skewed/blank fixtures and Excel exports. The scan rejects incomplete inventories and high/critical findings without advisory suppressions. Repeat both checks for every release image.
 
 Push the tested image to a private ECR repository with tag immutability and enhanced vulnerability scanning. Resolve its image digest. Use the digest (not a mutable tag) as ImageUri. Review the CloudFormation template and deploy through your normal change process with CAPABILITY_IAM and these parameters:
 

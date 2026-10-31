@@ -2,19 +2,21 @@
 // Expectations are fixture input values, never used by application extraction.
 import fs from 'node:fs/promises';
 import assert from 'node:assert/strict';
+import ExcelJS from 'exceljs';
 const base=process.env.TEST_URL||'http://127.0.0.1:4317';
+const output=process.env.TEST_OUTPUT_DIR||'output/synthetic-validation';
 const auth=process.env.TEST_AUTH_FILE?JSON.parse(await fs.readFile(process.env.TEST_AUTH_FILE,'utf8')):null;
-const fetch=(url,options={})=>globalThis.fetch(url,{...options,headers:{...options.headers,...(auth?{Cookie:auth.adminCookie,Origin:base,'X-CSRF-Token':auth.csrf}:{})}});
+const fetch=(url,options={})=>globalThis.fetch(url,{...options,headers:{...options.headers,...(auth?{Cookie:auth.adminCookie,Origin:process.env.TEST_ORIGIN||base,'X-CSRF-Token':auth.csrf}:{})}});
 const expected=JSON.parse(await fs.readFile('test/fixtures/expected.json','utf8'));
-await fs.mkdir('output/synthetic-validation',{recursive:true});
-const results=process.argv.slice(2).length?await fs.readFile('output/synthetic-validation/report.json','utf8').then(JSON.parse).catch(()=>[]):[];
+await fs.mkdir(output,{recursive:true});
+const results=process.argv.slice(2).length?await fs.readFile(output+'/report.json','utf8').then(JSON.parse).catch(()=>[]):[];
 for(const name of process.argv.slice(2).length?process.argv.slice(2):['legacy-A-digital','legacy-B-digital','legacy-B-scan','legacy-B-skew','legacy-blank']){
  const response=await fetch(base+'/api/documents',{method:'POST',headers:{'x-file-name':name+'.pdf'},body:await fs.readFile('test/fixtures/'+name+'.pdf')});
  assert.equal(response.status,202);const {id}=await response.json();let doc;
  const start=Date.now();
  do{await new Promise(r=>setTimeout(r,2000));doc=await (await fetch(base+'/api/documents/'+id)).json();if(Date.now()-start>600000)throw Error('Timed out: '+name);}while(!['complete','error'].includes(doc.status));
  assert.equal(doc.status,'complete',doc.message);assert.ok(!doc.reviewApplied,'Synthetic inputs must run fresh OCR');
- await fs.writeFile('output/synthetic-validation/'+name+'.json',JSON.stringify(doc,null,2));
+ await fs.writeFile(output+'/'+name+'.json',JSON.stringify(doc,null,2));
  const fields=doc.pages[0].fields,checks=[];
  const key=s=>String(s).toUpperCase().replace(/[^A-Z0-9]/g,'');
  const check=(group,label,want)=>{const found=fields.find(f=>f.group===group&&f.label===label);checks.push({group,label,expected:want,actual:found?.value||'',pass:key(found?.value||'')===key(want)});};
@@ -37,9 +39,19 @@ for(const name of process.argv.slice(2).length?process.argv.slice(2):['legacy-A-
  }
  const entry={name,id,seconds:Math.round((Date.now()-start)/1000),rotationDegrees:doc.pages[0].rotationDegrees||0,passed:checks.filter(c=>c.pass).length,total:checks.length,failures:checks.filter(c=>!c.pass),checks};const previous=results.findIndex(r=>r.name===name);if(previous>=0)results.splice(previous,1,entry);else results.push(entry);
  console.log(JSON.stringify({...entry,checks:undefined}));
- if(name==='legacy-A-digital'){
- const x=await fetch(base+'/api/documents/'+id+'/export.xlsx');assert.equal(x.status,200);await fs.writeFile('output/synthetic-validation/'+name+'.xlsx',Buffer.from(await x.arrayBuffer()));
+ const x=await fetch(base+'/api/documents/'+id+'/export.xlsx');assert.equal(x.status,200);
+ const bytes=Buffer.from(await x.arrayBuffer());await fs.writeFile(output+'/'+name+'.xlsx',bytes);
+ const book=new ExcelJS.Workbook();await book.xlsx.load(bytes);
+ const sheet=book.getWorksheet('Page 1');assert.ok(sheet,'Export must contain extracted page');
+ if(name!=='legacy-blank'){
+  // OCR accuracy is checked above against fixture inputs; export must retain the
+  // exact extracted value, including spacing, without silently normalizing it.
+  const patient=fields.find(f=>f.group==='Patient'&&f.label==='Patient name')?.value;
+  assert.ok(patient);
+  let found=false;sheet.eachRow(row=>{if(row.values.includes(patient))found=true;});
+  assert.ok(found,'Export must preserve the extracted patient name');
  }
- await fs.writeFile('output/synthetic-validation/report.json',JSON.stringify(results,null,2));
+ entry.excelVerified=true;
+ await fs.writeFile(output+'/report.json',JSON.stringify(results,null,2));
 }
 if(results.some(r=>r.failures.length))process.exitCode=1;

@@ -1,0 +1,202 @@
+{
+  "recordedAt": "2026-10-31T10:19:27.577Z",
+  "scope": "Local code and Linux runtime qualification; not an AWS staging deployment",
+  "security": {
+    "image": "pdf-extractor-hdm:security-final",
+    "imageId": "sha256:019ea467df3e137748dd88d6d7fa0ce893ddb4c0fa19a4ad297b68bdeff16b46",
+    "scanner": "aquasec/trivy@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c",
+    "scannedAt": "2026-10-31T10:10:30.784Z",
+    "status": "PASS",
+    "counts": {
+      "CRITICAL": 0,
+      "HIGH": 0,
+      "MEDIUM": 0,
+      "LOW": 0,
+      "UNKNOWN": 0
+    },
+    "suppressions": 0
+  },
+  "inventory": [
+    {
+      "class": "os-pkgs",
+      "type": "wolfi",
+      "packageRecords": 71
+    },
+    {
+      "class": "lang-pkgs",
+      "type": "node-pkg",
+      "packageRecords": 135
+    },
+    {
+      "class": "lang-pkgs",
+      "type": "python-pkg",
+      "packageRecords": 15
+    }
+  ],
+  "npmVulnerabilities": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "python": {
+    "packages": 15,
+    "vulnerabilities": 0
+  },
+  "unitTests": {
+    "javascript": 53,
+    "python": 9,
+    "status": "PASS"
+  },
+  "adminBrowserSuites": [
+    {
+      "name": "test-users-browser.cjs",
+      "status": "PASS"
+    },
+    {
+      "name": "test-six-character-flow.cjs",
+      "status": "PASS"
+    },
+    {
+      "name": "test-password-eyes.cjs",
+      "status": "PASS"
+    },
+    {
+      "name": "test-navigation.cjs",
+      "status": "PASS"
+    },
+    {
+      "name": "test-activity-ui.cjs",
+      "status": "PASS"
+    },
+    {
+      "name": "test-audit-browser.cjs",
+      "status": "PASS"
+    },
+    {
+      "name": "test-document-list-recovery.cjs",
+      "status": "PASS"
+    },
+    {
+      "name": "test-list-error-recovery.cjs",
+      "status": "PASS"
+    },
+    {
+      "name": "test-user-pagination.cjs",
+      "status": "PASS"
+    },
+    {
+      "name": "test-security.mjs",
+      "status": "PASS"
+    },
+    {
+      "name": "test-xss.cjs",
+      "status": "PASS"
+    }
+  ],
+  "readerBrowserSuites": [
+    {
+      "name": "test-client-reader.mjs",
+      "status": "PASS"
+    },
+    {
+      "name": "test-exported-workbooks.cjs",
+      "status": "PASS"
+    },
+    {
+      "name": "test-pencil-edit.cjs",
+      "status": "PASS"
+    },
+    {
+      "name": "test-reader-controls.cjs",
+      "status": "PASS"
+    },
+    {
+      "name": "test-export-dropdown.cjs",
+      "status": "PASS"
+    },
+    {
+      "name": "test-portal-dates.cjs",
+      "status": "PASS"
+    },
+    {
+      "name": "test-ui.cjs",
+      "status": "PASS"
+    },
+    {
+      "name": "test-confirmations.cjs",
+      "status": "PASS"
+    },
+    {
+      "name": "test-demo-resilience.cjs",
+      "status": "PASS"
+    },
+    {
+      "name": "test-isolation.mjs",
+      "status": "PASS"
+    },
+    {
+      "name": "test-cancel-browser.cjs",
+      "status": "PASS"
+    }
+  ],
+  "container": {
+    "status": "PASS",
+    "checks": [
+      "Verified TLS connection; migrations apply and rerun safely; administrator bootstrap",
+      "Wrong TLS hostname rejected",
+      "Non-root read-only filesystem, writable runtime volume, branding and production HSTS",
+      "Secure host cookie and enforced first-login password change",
+      "Linux OCR, saved field correction and actual Excel roundtrip",
+      "Full Linux OCR campaign: digital, scanned, skewed and blank fixtures with real Excel exports",
+      "SIGTERM clean exit, interrupted OCR resumes, saved edits and session survive restart",
+      "Production logout revokes session"
+    ]
+  },
+  "ocrFixtures": [
+    {
+      "name": "legacy-A-digital",
+      "passed": 72,
+      "total": 72,
+      "excelVerified": true
+    },
+    {
+      "name": "legacy-B-digital",
+      "passed": 72,
+      "total": 72,
+      "excelVerified": true
+    },
+    {
+      "name": "legacy-B-scan",
+      "passed": 72,
+      "total": 72,
+      "excelVerified": true
+    },
+    {
+      "name": "legacy-B-skew",
+      "passed": 72,
+      "total": 72,
+      "excelVerified": true
+    },
+    {
+      "name": "legacy-blank",
+      "passed": 14,
+      "total": 14,
+      "excelVerified": true
+    }
+  ],
+  "otherChecks": {
+    "database": "PASS",
+    "authentication": "PASS (23 assertions)",
+    "userManagement": "PASS (28 API assertions plus browser flows)",
+    "audit": "PASS",
+    "lint": "PASS",
+    "scopedTypecheck": "PASS",
+    "productionBuild": "PASS",
+    "cloudFormationLint": "PASS",
+    "configuredSecretScan": "PASS"
+  },
+  "awsStaging": "NOT RUN - target account validation remains required"
+}

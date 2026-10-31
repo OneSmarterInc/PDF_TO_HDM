@@ -1,4 +1,6 @@
-# AWS readiness and portal rename — 2026-10-31
+# Initial AWS readiness and portal rename — 2026-10-31
+
+> Historical assessment of the earlier Debian candidate. For the subsequent security remediation and current release evidence, see [SECURITY_REMEDIATION.md](SECURITY_REMEDIATION.md). Findings and counts below describe the earlier image, not later qualified builds.
 
 ## Scope and current release status
 

@@ -6,11 +6,12 @@ import path from 'node:path';
 import {createRequire} from 'node:module';
 const require=createRequire(import.meta.url);
 const archive=require('archiver'),glob=require('glob');
-test('patched matcher retains legacy glob and ExcelJS archive compatibility',async()=>{
+test('maintained glob and ZIP dependencies retain archive compatibility',async()=>{
  const dir=await fs.mkdtemp(path.join(os.tmpdir(),'hdm-archive-'));
  try{
   await fs.mkdir(path.join(dir,'nested'));await fs.writeFile(path.join(dir,'nested','claim.txt'),'literal claim text');await fs.writeFile(path.join(dir,'skip.txt'),'skip');
-  assert.deepEqual(glob.sync('**/*.txt',{cwd:dir,ignore:'skip.txt'}),['nested/claim.txt']);
+  // Modern glob returns native separators by default; request the POSIX paths used in ZIPs.
+  assert.deepEqual(glob.sync('**/*.txt',{cwd:dir,ignore:'skip.txt',posix:true}),['nested/claim.txt']);
   const zip=archive('zip'),chunks=[];zip.on('data',chunk=>chunks.push(chunk));
   const finished=new Promise((resolve,reject)=>{zip.on('end',resolve);zip.on('error',reject);zip.on('warning',reject);});
   zip.glob('**/*.txt',{cwd:dir,ignore:'skip.txt'});await zip.finalize();await finished;

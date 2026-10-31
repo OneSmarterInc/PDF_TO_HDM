@@ -3,7 +3,7 @@ const fs=require('node:fs'),path=require('node:path'),assert=require('node:asser
 const {execFileSync}=require('node:child_process'),{randomBytes}=require('node:crypto');
 const image=process.env.TEST_IMAGE||'pdf-extracter-hdm:aws-candidate';
 const suffix=randomBytes(4).toString('hex'),network='hdm-qa-'+suffix,db=network+'-db',app=network+'-app';
-const dir=path.resolve('tmp',network);fs.mkdirSync(dir,{recursive:true});
+const dir=path.resolve('tmp',network);fs.mkdirSync(dir,{recursive:true});fs.mkdirSync('output',{recursive:true});
 const docker=(args)=>execFileSync('docker',args,{encoding:'utf8',windowsHide:true,timeout:300000,maxBuffer:4*1024*1024}).trim();
 const ownerPassword=randomBytes(24).toString('hex'),runtimePassword=randomBytes(24).toString('hex'),temporary=randomBytes(3).toString('hex'),initial=randomBytes(16).toString('hex');
 const origin='https://portal.example.invalid',base='http://127.0.0.1:4320';
@@ -46,6 +46,7 @@ async function complete(id){for(let i=0;i<600;i++){const r=await call('/api/docu
   const field=doc.pages[0].fields.findIndex(f=>f.label==='Patient name');assert.ok(field>=0);
   r=await call('/api/documents/'+id,'PATCH',{page:0,field,value:'LINUX VERIFIED',version:doc.version});assert.equal(r.status,200);
   r=await call('/api/documents/'+id+'/export.xlsx');assert.equal(r.status,200);const ExcelJS=require('exceljs'),book=new ExcelJS.Workbook();await book.xlsx.load(Buffer.from(await r.arrayBuffer()));let found=false;book.eachSheet(s=>s.eachRow(row=>{if(row.values.includes('LINUX VERIFIED'))found=true;}));assert.ok(found);pass('Linux OCR, saved field correction and actual Excel roundtrip');
+  if(process.env.TEST_FULL_OCR==='1'){const authFile=path.join(dir,'synthetic-auth.json');fs.writeFileSync(authFile,JSON.stringify({adminCookie:cookie,csrf}));const result=execFileSync(process.execPath,['scripts/validate-synthetic.mjs'],{encoding:'utf8',timeout:1200000,windowsHide:true,env:{...process.env,TEST_URL:base,TEST_ORIGIN:origin,TEST_AUTH_FILE:authFile,TEST_OUTPUT_DIR:'output/linux-synthetic-validation'}});console.log(result);pass('Full Linux OCR campaign: digital, scanned, skewed and blank fixtures with real Excel exports');}
   const interrupted=await upload();for(let i=0;i<30;i++){const d=await(await call('/api/documents/'+interrupted)).json();if(d.status==='processing')break;await pause(200);}
   docker(['stop','--time','100',app]);assert.equal(docker(['inspect','--format','{{.State.ExitCode}}',app]),'0');docker(['start',app]);await ready();await complete(interrupted);
   doc=await(await call('/api/documents/'+id)).json();assert.equal(doc.pages[0].fields[field].value,'LINUX VERIFIED');pass('SIGTERM clean exit, interrupted OCR resumes, saved edits and session survive restart');
