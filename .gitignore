@@ -19,6 +19,7 @@ test-results/
 
 .qa-venv/
 dist/
+frontend/dist/
 
 .runtime/
 

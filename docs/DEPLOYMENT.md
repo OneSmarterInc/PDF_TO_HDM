@@ -4,7 +4,7 @@ For the AWS container deployment, use [AWS_DEPLOYMENT.md](AWS_DEPLOYMENT.md).
 
 ## Runtime and local access
 
-Node.js 24+, Python 3.12, PostgreSQL 18 (or a compatible maintained PostgreSQL service), approximately 4 GB available RAM for one OCR worker, and protected disk space for temporary rendering and PostgreSQL assets. Windows is tested; see AWS_READINESS_REPORT.md for the Linux container qualification results. The existing app remains plain Node HTTP and browser JavaScript.
+Node.js 24+, Python 3.12, PostgreSQL 18 (or a compatible maintained PostgreSQL service), approximately 4 GB available RAM for one OCR worker, and protected disk space for temporary rendering and PostgreSQL assets. React is compiled with Vite. Django/Waitress serves public HTTP and a private Node.js worker performs OCR, verification and Excel export. Historical AWS_READINESS_REPORT.md results apply to the prior image; rebuild and requalify the migrated image before deployment.
 
 1. Run `npm ci` in the project directory.
 2. Create `.venv` with Python 3.12; install `requirements.lock.txt`. Set `PYTHON_PATH` if the interpreter is elsewhere. The installed RapidOCR package includes its local models; `models/eng.traineddata` is packaged for Tesseract.
@@ -13,7 +13,7 @@ Node.js 24+, Python 3.12, PostgreSQL 18 (or a compatible maintained PostgreSQL s
 5. Run `npm run db:migrate` with migration credentials. Migrations are transactional and checksum checked. Exact-file local reviews are imported only by the migration command.
 6. Initialize the first administrator using `BOOTSTRAP_USERNAME` and `BOOTSTRAP_PASSWORD` from a secure operator environment, then `npm run admin:init`. The command refuses to replace an existing admin. Remove the bootstrap password from runtime configuration after initialization. First login must change it.
 7. Configure TEMPORARY_PASSWORD as a server secret. It is hashed separately for every account and never sent in creation/reset responses. Share it and usernames through your organization's approved secure process. Account creation/reset fails clearly if this secret is absent.
-8. Run `npm start` and open the configured APP_ORIGIN. On this machine `start.cmd` starts the existing isolated database if necessary, then the portal at http://127.0.0.1:4317. Initial credentials are in the protected local `.local-credentials.txt`; never commit or publish it.
+8. Run `npm run build`, then `npm start` and open the configured APP_ORIGIN. `python run_portal.py` starts Django directly and supervises the private OCR worker; `npm start` is a compatibility launcher. On this machine `start.cmd` starts the existing isolated database if necessary, then the portal at http://127.0.0.1:4317. Initial credentials are in the protected local `.local-credentials.txt`; never commit or publish it.
 
 ## Production package
 

@@ -2,9 +2,9 @@ FROM node:24-trixie-slim AS node-runtime
 FROM node-runtime AS build
 WORKDIR /build
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm ci && npm cache clean --force
 COPY . .
-RUN node scripts/build.mjs
+RUN node scripts/build.mjs && npm prune --omit=dev
 
 # Wolfi provides patched runtime libraries without substituting OCR engines/models.
 FROM cgr.dev/chainguard/wolfi-base@sha256:88a20e2d017bd20cdc0cb3910de603e7bea9512a6c351a8dd3c9df212ab03d73 AS runtime
@@ -30,4 +30,4 @@ EXPOSE 4317
 HEALTHCHECK --interval=30s --timeout=8s --start-period=90s --retries=3 \
  CMD ["node","-e","fetch('http://127.0.0.1:4317/healthz',{signal:AbortSignal.timeout(6000)}).then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
 ENTRYPOINT ["/sbin/tini","--"]
-CMD ["node","server.mjs"]
+CMD ["python","run_portal.py"]

@@ -2,6 +2,10 @@
 
 A document-processing portal for uploading PDFs, reviewing automatically extracted information beside the original document, and exporting saved corrections to Excel, JSON or text.
 
+**Current architecture:** React frontend, Django/Waitress backend, PostgreSQL, and a private Node.js OCR/verification/Excel worker. See [migration and verification notes](docs/REACT_DJANGO_MIGRATION.md). Run `npm run build` before starting after frontend changes. The previous container/security qualification below describes the pre-migration image; a newly built image requires fresh release qualification.
+
+The latest local feature, security, failure-path and browser checks are recorded in [comprehensive QA](docs/COMPREHENSIVE_QA.md).
+
 **AWS handoff status:** the previously reported container and JavaScript dependency security blockers have been remediated. The final image scan reports zero vulnerabilities without suppressions. Read [security remediation and release evidence](docs/SECURITY_REMEDIATION.md) and complete the AWS staging gates before public deployment. The repository does not contain production credentials or client documents.
 
 ## AWS team: start here

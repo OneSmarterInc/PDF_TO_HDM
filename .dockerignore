@@ -12,6 +12,11 @@
 !*.py
 !public/
 !public/**
+!backend/
+!backend/**
+!frontend/
+!frontend/**
+frontend/dist/
 !db/
 !db/**
 !excel/

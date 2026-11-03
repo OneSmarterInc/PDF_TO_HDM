@@ -11,7 +11,7 @@ try{
  for(const username of names)eq((await call('/api/auth/login',{method:'POST',body:{username,password:'wrong'}})).status,401);
  eq((await call('/api/documents/missing')).status,401);
  eq((await call('/api/auth/login',{method:'POST',body:{username:names[0],password},origin:'https://evil.invalid'})).status,403);
- let r=await call('/api/auth/login',{method:'POST',body:{username:names[0],password}});eq(r.status,200);const adminCookie=r.headers.get('set-cookie').split(';')[0];assert.match(r.headers.get('set-cookie'),/HttpOnly; SameSite=Strict/);assertions++;
+ let r=await call('/api/auth/login',{method:'POST',body:{username:names[0],password}});eq(r.status,200);const adminCookie=r.headers.get('set-cookie').split(';')[0];assert.match(r.headers.get('set-cookie'),/HttpOnly/);assert.match(r.headers.get('set-cookie'),/SameSite=Strict/);assertions++;
  const admin=await r.json();eq(admin.user.role,'admin');eq(admin.user.password_hash,undefined);
  r=await call('/api/auth/login',{method:'POST',body:{username:names[1],password}});eq(r.status,200);let cookie=r.headers.get('set-cookie').split(';')[0],data=await r.json();eq(data.user.must_change_password,true);
  eq((await call('/api/documents/x',{cookie})).status,403);

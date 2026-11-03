@@ -1,3 +1,2 @@
-rapidocr-onnxruntime==1.4.4
-pypdfium2==5.14.0
-Pillow==13.0.0
+# Runtime dependencies are pinned together for reproducible OCR and Django builds.
+-r requirements.lock.txt
